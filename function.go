@@ -27,7 +27,7 @@ func (c *callback) call(info *v8go.FunctionCallbackInfo) (output *v8go.Value) {
 	if result == nil {
 		return nil
 	}
-	return result.Export()
+	return result.export()
 }
 
 type FunctionCallback func(info *FunctionCallbackInfo) *JsValue
