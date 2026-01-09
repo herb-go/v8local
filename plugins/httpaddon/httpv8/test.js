@@ -1,13 +1,13 @@
-function test(url){
-    let req= HTTP.New("GET",url)
+function test(url) {
+    let req = HTTP.New("GET", url)
     req.GetID()
     req.GetURL()
     req.SetURL(url)
     req.GetBody()
     req.SetBody("test")
     req.ResetHeader()
-    req.SetHeader("uid","123")
-    req.AddHeader("uid","234")
+    req.SetHeader("uid", "123")
+    req.AddHeader("uid", "234")
     req.GetHeader("uid")
     req.DelHeader("uid")
     req.GetMethod()

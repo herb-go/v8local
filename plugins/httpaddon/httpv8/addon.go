@@ -281,12 +281,10 @@ func (a *Addon) NewRequest(call *v8local.FunctionCallbackInfo) *v8local.JsValue 
 	}
 	a.reqs.Store(rid, ar)
 	fr := call.This().Get("FinalizationRegistry")
-	defer fr.Release()
 	obj := a.Builder(call.Local(), a, ar)
 	obj.Set("id", call.Local().NewString(rid))
 	fn := fr.Get("register")
-	defer fn.Release()
-	fn.Call(fr, obj, a.Register(call.Local(), call.This(), req.ID)).Release()
+	fn.Call(fr, obj, a.Register(call.Local(), call.This(), req.ID))
 	return obj
 }
 func (a *Addon) Register(r *v8local.Local, addonobj *v8local.JsValue, id string) *v8local.JsValue {

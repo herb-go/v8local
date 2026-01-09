@@ -21,15 +21,18 @@ func (l *Local) Close() {
 func (l *Local) Context() *Context {
 	return l.ctx
 }
+func (l *Local) NewLocal() *Local {
+	return l.ctx.NewLocal()
+}
 func (l *Local) NewFunction(callback FunctionCallback) *JsValue {
 	tmpl := l.ctx.NewFunctionTemplate(callback)
 	fn := tmpl.GetFunction(l.ctx)
 	return l.manage(fn, true)
 }
-func (l *Local) manage(v *v8go.Value, exported bool) *JsValue {
+func (l *Local) manage(v *v8go.Value, managed bool) *JsValue {
 	val := &JsValue{
 		raw:      v,
-		exported: exported,
+		exported: !managed,
 		local:    l,
 	}
 	l.values = append(l.values, val)
@@ -92,7 +95,6 @@ func (l *Local) NewStringArray(values ...string) *JsValue {
 func (l *Local) NewArray(values ...*JsValue) *JsValue {
 	a := l.RunScript("Array", "array")
 	result := a.Call(a, values...)
-	a.Release()
 	return result
 }
 func (l *Local) NewObject() *JsValue {

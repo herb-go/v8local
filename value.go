@@ -60,9 +60,6 @@ func (v *JsValue) Call(recvr *JsValue, args ...*JsValue) *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	for i := range args {
-		args[i].Release()
-	}
 	result := v.local.manage(val, true)
 	return result
 }
@@ -70,7 +67,6 @@ func (v *JsValue) Call(recvr *JsValue, args ...*JsValue) *JsValue {
 func (v *JsValue) Array() []*JsValue {
 	result := []*JsValue{}
 	length := v.Get("length")
-	defer length.Release()
 	if length.IsNullOrUndefined() {
 		return result
 	}
@@ -89,7 +85,6 @@ func (v *JsValue) StringArrry() []string {
 	result := make([]string, len(arr))
 	for i, item := range arr {
 		result[i] = item.String()
-		item.Release()
 	}
 	return result
 }
@@ -222,7 +217,6 @@ func (v *JsValue) MustMarshalJSON() []byte {
 
 func (v *JsValue) MethodCall(methodName string, args ...*JsValue) *JsValue {
 	fn := v.Get(methodName) // ensure method exists
-	defer fn.Release()
 	result := fn.Call(v, args...)
 	return result
 }
@@ -249,7 +243,6 @@ func (v *JsValue) GetIdx(idx uint32) *JsValue {
 }
 
 func (v *JsValue) Set(key string, val *JsValue) {
-	defer val.Release()
 	err := mustAsObject(v.export()).Set(key, val.export())
 	if err != nil {
 		panic(err)
@@ -257,7 +250,6 @@ func (v *JsValue) Set(key string, val *JsValue) {
 }
 
 func (v *JsValue) SetIdx(idx uint32, val *JsValue) {
-	defer val.Release()
 	err := mustAsObject(v.export()).SetIdx(idx, val.export())
 	if err != nil {
 		panic(err)
