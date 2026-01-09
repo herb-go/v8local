@@ -15,7 +15,8 @@ type Initializer struct {
 
 func (i *Initializer) MustApplyInitializer(p *Plugin) {
 	var ctx = v8local.NewContext()
-	p.Runtime = ctx.NewLocal()
+	p.Runtime = ctx
+	p.Top = ctx.NewLocal()
 	p.entry = i.Entry
 	p.startCommand = i.StartCommand
 	p.modules = i.Modules

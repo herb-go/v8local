@@ -22,7 +22,8 @@ func New() *Plugin {
 type Plugin struct {
 	sync.RWMutex
 	entry   string
-	Runtime *v8local.Local
+	Runtime *v8local.Context
+	Top     *v8local.Local //Top Level Local
 	herbplugin.Plugin
 	DisableBuiltin bool
 	startCommand   string
@@ -43,13 +44,13 @@ func (p *Plugin) MustInitPlugin() {
 			processs = append(processs, p.modules[k].InitProcess)
 		}
 	}
-	builtin := p.Runtime.NewObject()
+	builtin := p.Top.NewObject()
 	for key, fn := range p.Builtin {
 		builtin.Set(key, fn)
 	}
 	herbplugin.Exec(p, processs...)
 	if !p.DisableBuiltin {
-		global := p.Runtime.Global()
+		global := p.Top.Global()
 		global.Set(p.namespace, builtin)
 
 	}
@@ -61,7 +62,7 @@ func (p *Plugin) MustLoadPlugin() {
 		if err != nil {
 			panic(err)
 		}
-		p.Runtime.RunScript(string(data), p.entry)
+		p.Top.RunScript(string(data), p.entry)
 	}
 }
 
@@ -75,7 +76,7 @@ func (p *Plugin) MustBootPlugin() {
 	}
 	herbplugin.Exec(p, processs...)
 	if p.startCommand != "" {
-		p.Runtime.RunScript(p.startCommand, "")
+		p.Top.RunScript(p.startCommand, "")
 	}
 }
 
@@ -91,9 +92,12 @@ func (p *Plugin) MustClosePlugin() {
 	p.Builtin = nil
 	p.Plugin.MustClosePlugin()
 	rt := p.Runtime
+	top := p.Top
 	p.Runtime = nil
+	p.Top = nil
+	top.Close()
 	rt.Close()
-	rt.Context().Close()
+
 }
 func (p *Plugin) LoadJsPlugin() *Plugin {
 	return p

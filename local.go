@@ -21,6 +21,10 @@ func (l *Local) Close() {
 func (l *Local) Context() *Context {
 	return l.ctx
 }
+func (l *Local) RetainedValueCount() int {
+	return len(l.values)
+}
+
 func (l *Local) NewLocal() *Local {
 	return l.ctx.NewLocal()
 }
