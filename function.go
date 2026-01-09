@@ -78,6 +78,11 @@ func (t *FunctionTemplate) GetFunction(ctx *Context) *v8go.Value {
 	fn := t.tmpl.GetFunction(ctx.Raw)
 	return fn.Value
 }
+func (t *FunctionTemplate) GetLocalFunction(local *Local) *JsValue {
+	fn := t.tmpl.GetFunction(local.ctx.Raw)
+	return local.manage(fn.Value, true)
+
+}
 func newFunctionTemplate(ctx *Context, callback FunctionCallback) *FunctionTemplate {
 	tmpl := v8go.NewFunctionTemplate(ctx.Raw.Isolate(), callback.newCallback(ctx).call)
 	return &FunctionTemplate{
