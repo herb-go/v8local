@@ -60,7 +60,7 @@ func (v *JsValue) Call(recvr *JsValue, args ...*JsValue) *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	result := v.local.manage(val, true)
+	result := v.local.manage(val)
 	return result
 }
 
@@ -222,14 +222,14 @@ func (v *JsValue) MethodCall(methodName string, args ...*JsValue) *JsValue {
 }
 func (v *JsValue) SetObjectMethod(name string, fn FunctionCallback) {
 	f := v.local.ctx.NewFunctionTemplate(fn).GetFunction(v.local.ctx)
-	v.Set(name, v.local.manage(f, true))
+	v.Set(name, v.local.manage(f))
 }
 func (v *JsValue) Get(key string) *JsValue {
 	val, err := mustAsObject(v.export()).Get(key)
 	if err != nil {
 		panic(err)
 	}
-	result := v.local.manage(val, true)
+	result := v.local.manage(val)
 	return result
 }
 func (v *JsValue) GetIdx(idx uint32) *JsValue {
@@ -237,7 +237,7 @@ func (v *JsValue) GetIdx(idx uint32) *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	result := v.local.manage(val, true)
+	result := v.local.manage(val)
 	return result
 
 }

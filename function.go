@@ -19,15 +19,15 @@ func (c *callback) call(info *v8go.FunctionCallbackInfo) (output *v8go.Value) {
 	rawargs := info.Args()
 	args := make([]*JsValue, len(rawargs))
 	for k, v := range rawargs {
-		args[k] = local.manage(v, true)
+		args[k] = local.manage(v)
 	}
-	this := local.manage(info.This().Value, true)
+	this := local.manage(info.This().Value)
 	fi := NewFunctionCallbackInfo(local, this, args...)
 	result := c.cb(fi)
 	if result == nil {
 		return nil
 	}
-	return result.export()
+	return result.Export()
 }
 
 type FunctionCallback func(info *FunctionCallbackInfo) *JsValue
@@ -80,7 +80,7 @@ func (t *FunctionTemplate) GetFunction(ctx *Context) *v8go.Value {
 }
 func (t *FunctionTemplate) GetLocalFunction(local *Local) *JsValue {
 	fn := t.tmpl.GetFunction(local.ctx.Raw)
-	return local.manage(fn.Value, true)
+	return local.manage(fn.Value)
 }
 func newFunctionTemplate(ctx *Context, callback FunctionCallback) *FunctionTemplate {
 	tmpl := v8go.NewFunctionTemplate(ctx.Raw.Isolate(), callback.newCallback(ctx).call)

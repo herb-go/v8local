@@ -27,12 +27,12 @@ func (l *Local) NewLocal() *Local {
 func (l *Local) NewFunction(callback FunctionCallback) *JsValue {
 	tmpl := l.ctx.NewFunctionTemplate(callback)
 	fn := tmpl.GetFunction(l.ctx)
-	return l.manage(fn, true)
+	return l.manage(fn)
 }
-func (l *Local) manage(v *v8go.Value, managed bool) *JsValue {
+func (l *Local) manage(v *v8go.Value) *JsValue {
 	val := &JsValue{
 		raw:      v,
-		exported: !managed,
+		exported: false,
 		local:    l,
 	}
 	l.values = append(l.values, val)
@@ -51,7 +51,7 @@ func (l *Local) Import(v *v8go.Value) *JsValue {
 }
 
 func (l *Local) Global() *JsValue {
-	result := l.manage(l.ctx.Raw.Global().Value, false)
+	result := l.manage(l.ctx.Raw.Global().Value)
 	return result
 }
 
@@ -64,7 +64,7 @@ func (l *Local) newValue(v interface{}) *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	return l.manage(val, true)
+	return l.manage(val)
 }
 func (l *Local) NewString(val string) *JsValue {
 	return l.newValue(val)
@@ -102,7 +102,7 @@ func (l *Local) NewObject() *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	result := l.manage(obj.Value, true) //?
+	result := l.manage(obj.Value) //?
 	return result
 }
 func (l *Local) NewArrayBuffer(data []byte) *JsValue {
@@ -115,8 +115,8 @@ func (l *Local) RunScript(script string, name string) *JsValue {
 	if err != nil {
 		panic(err)
 	}
-	return l.manage(result, true)
+	return l.manage(result)
 }
 func (l *Local) NullValue() *JsValue {
-	return l.manage(l.ctx.nullvalue, true)
+	return l.manage(l.ctx.nullvalue)
 }
