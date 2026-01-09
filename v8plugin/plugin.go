@@ -92,10 +92,8 @@ func (p *Plugin) MustClosePlugin() {
 	p.Builtin = nil
 	p.Plugin.MustClosePlugin()
 	rt := p.Runtime
-	top := p.Top
 	p.Runtime = nil
 	p.Top = nil
-	top.Close()
 	rt.Close()
 
 }
