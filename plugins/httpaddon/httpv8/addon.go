@@ -289,8 +289,8 @@ func (a *Addon) NewRequest(call *v8local.FunctionCallbackInfo) *v8local.JsValue 
 }
 func (a *Addon) Register(r *v8local.Local, addonobj *v8local.JsValue, id string) *v8local.JsValue {
 	obj := r.NewObject()
-	upload := addonobj.Get("unload")
-	obj.Set("unload", upload)
+	unload := addonobj.Get("unload")
+	obj.Set("unload", unload)
 	obj.Set("id", r.NewString(id))
 	return obj
 }
@@ -298,14 +298,16 @@ func (a *Addon) unload(call *v8local.FunctionCallbackInfo) *v8local.JsValue {
 	a.reqs.Delete(call.GetArg(0).String())
 	return nil
 }
-func (a *Addon) size(call *v8local.FunctionCallbackInfo) *v8local.JsValue {
+func (a *Addon) getRequestCount() int {
 	count := 0
 	a.reqs.Range(func(key, value interface{}) bool {
 		count++
 		return true // continue iteration
 	})
-
-	return call.Local().NewInt32(int32(count))
+	return count
+}
+func (a *Addon) size(call *v8local.FunctionCallbackInfo) *v8local.JsValue {
+	return call.Local().NewInt32(int32(a.getRequestCount()))
 }
 func (a *Addon) LoadReq(id string) *Request {
 	v, ok := a.reqs.Load(id)

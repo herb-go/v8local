@@ -26,11 +26,13 @@ func TestAddon(t *testing.T) {
 	opt.GetLocation().Path = "."
 	i := v8plugin.NewInitializer()
 	i.Entry = "test.js"
+	var addon *Addon
 	module := herbplugin.CreateModule(
 		"test",
 		func(ctx context.Context, p herbplugin.Plugin, next func(ctx context.Context, plugin herbplugin.Plugin)) {
 			plugin := p.(*v8plugin.Plugin)
-			plugin.Top.Global().Set("HTTP", Create(p).Convert(plugin.Top))
+			addon = Create(p)
+			plugin.Top.Global().Set("HTTP", addon.Convert(plugin.Top))
 			next(ctx, p)
 		},
 		func(ctx context.Context, p herbplugin.Plugin, next func(ctx context.Context, plugin herbplugin.Plugin)) {
@@ -43,6 +45,7 @@ func TestAddon(t *testing.T) {
 	i.Modules = append(i.Modules, module)
 	p := v8plugin.MustCreatePlugin(i)
 	herbplugin.Lanuch(p, opt)
-	test := p.Top.Global().Get("test")
-	test.Call(test, p.Top.NewString(s.URL))
+	if addon.getRequestCount() != 0 {
+		t.Fatal("Request not cleaned up")
+	}
 }
