@@ -12,6 +12,10 @@ type JsValue struct {
 	exported bool
 }
 
+func (j *JsValue) Local() *Local {
+	return j.local
+}
+
 // Export marks the JsValue as exported and returns the underlying *v8go.Value.
 // You must release the returned *v8go.Value manually when you no longer need it.
 func (j *JsValue) Export() *v8go.Value {

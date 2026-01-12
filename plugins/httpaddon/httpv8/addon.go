@@ -15,6 +15,7 @@ type Builder func(r *v8local.Local, a *Addon, req *Request) *v8local.JsValue
 
 var DefaultBuilder = func(r *v8local.Local, a *Addon, req *Request) *v8local.JsValue {
 	obj := r.NewObject()
+	obj.Set("type", r.NewString("httpaddon.requeist"))
 	obj.Set("GetID", a.Functions["GetID"])
 	obj.Set("GetURL", a.Functions["GetURL"])
 	obj.Set("SetURL", a.Functions["SetURL"])
@@ -284,13 +285,15 @@ func (a *Addon) NewRequest(call *v8local.FunctionCallbackInfo) *v8local.JsValue 
 	obj := a.Builder(call.Local(), a, ar)
 	obj.Set("id", call.Local().NewString(rid))
 	fn := fr.Get("register")
-	fn.Call(fr, obj, a.Register(call.Local(), call.This(), req.ID))
+	fn.Call(fr, obj, a.Register(call.Local(), call.This(), rid))
 	return obj
 }
 func (a *Addon) Register(r *v8local.Local, addonobj *v8local.JsValue, id string) *v8local.JsValue {
 	obj := r.NewObject()
 	unload := addonobj.Get("unload")
 	obj.Set("unload", unload)
+	fn := obj.Get("unload")
+	fn.Call(obj, r.NewString("123"))
 	obj.Set("id", r.NewString(id))
 	return obj
 }

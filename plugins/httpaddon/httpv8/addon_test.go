@@ -9,6 +9,7 @@ import (
 
 	"github.com/herb-go/herbplugin"
 	"github.com/herb-go/plugins/addons/httpaddon"
+	"github.com/herb-go/v8go"
 	"github.com/herb-go/v8local/v8plugin"
 )
 
@@ -32,7 +33,9 @@ func TestAddon(t *testing.T) {
 		func(ctx context.Context, p herbplugin.Plugin, next func(ctx context.Context, plugin herbplugin.Plugin)) {
 			plugin := p.(*v8plugin.Plugin)
 			addon = Create(p)
-			plugin.Top.Global().Set("HTTP", addon.Convert(plugin.Top))
+			local := plugin.Runtime.NewLocal()
+			defer local.Close()
+			local.Global().Set("HTTP", addon.Convert(local))
 			next(ctx, p)
 		},
 		func(ctx context.Context, p herbplugin.Plugin, next func(ctx context.Context, plugin herbplugin.Plugin)) {
@@ -45,6 +48,20 @@ func TestAddon(t *testing.T) {
 	i.Modules = append(i.Modules, module)
 	p := v8plugin.MustCreatePlugin(i)
 	herbplugin.Lanuch(p, opt)
+	local := p.Runtime.NewLocal()
+	test := local.Global().Get("test")
+	result := test.Call(test, local.NewString(s.URL))
+	if result.Local() != local {
+		t.Fatal("Invalid return value")
+	}
+	if addon.getRequestCount() == 0 {
+		t.Fatal("Request cleaned up")
+	}
+	local.Close()
+	p.Top.Close()
+	v8go.ForceV8GC(p.Runtime.Raw.Isolate())
+	p.Runtime.RunIdleTasks(false, 1.0)
+	p.Runtime.RunIdleTasks(false, 1.0)
 	if addon.getRequestCount() != 0 {
 		t.Fatal("Request not cleaned up")
 	}

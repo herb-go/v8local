@@ -36,7 +36,12 @@ func (c *Context) Close() {
 func (c *Context) isNullValue(v *JsValue) bool {
 	return v == nil || v.raw == nil || v.raw == c.nullvalue
 }
-
+func (c *Context) RunIdleTasks(nowait bool, idleTimeInSeconds float64) {
+	iso := c.Raw.Isolate()
+	if v8go.PumpMessageLoop(iso, nowait) {
+		v8go.RunIdleTasks(c.Raw.Isolate(), idleTimeInSeconds)
+	}
+}
 func (c *Context) NewLocal() *Local {
 	return &Local{ctx: c, values: []*JsValue{}}
 }

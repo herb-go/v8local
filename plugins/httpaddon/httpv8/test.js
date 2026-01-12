@@ -23,4 +23,5 @@ function test(url) {
     req.ResponseHeader()
     req.ResponseHeaderValues()
     req.ResponseHeaderFields()
+    return req
 }
